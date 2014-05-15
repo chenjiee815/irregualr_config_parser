@@ -117,16 +117,22 @@ class IrregualrConfigParser(object):
         else:
             return option_line.get("value", None)
 
-    def set(self, section, option, value):
+    def set(self, section, option, value=None):
         _, option_line = self.__get_option(section, option)
         if option_line:
-            option_line['value'] = value
+            if value is None:
+                option_line.pop('value', None)
+            else:
+                option_line['value'] = value
             return True
 
         ln, _ = self.__get_section(section)
         if ln == -1:
             ln, _ = self.__add_section(section)
 
-        line = {"option": option, "value": value, "section": section}
+        if value is None:
+            line = {"option": option, "section": section}
+        else:
+            line = {"option": option, "value": value, "section": section}
         self.__content.insert(ln + 1, line)
         return True
