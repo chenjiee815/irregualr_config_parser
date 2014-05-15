@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding=utf-8
-
 class IrregualrConfigParser(object):
 
     COMMENT_FLAGS = ("#", ";")
@@ -24,8 +21,8 @@ class IrregualrConfigParser(object):
                 fp.write("\n")
                 continue
 
-            comment = line.get("comment", None)
             section = line.get("section", None)
+            comment = line.get("comment", None)
             option = line.get("option", None)
             value = line.get("value", None)
             if comment:
@@ -35,7 +32,9 @@ class IrregualrConfigParser(object):
                 fp.write("[{0}]\n".format(section))
                 continue
             elif option and value is not None:
-                fp.write("{0} = {1}\n".format(option, value))
+                fp.write("{0}={1}\n".format(option, value))
+            elif not section and not option:
+                continue
             else:
                 fp.write(option + "\n")
 
@@ -74,9 +73,6 @@ class IrregualrConfigParser(object):
 
             section_name = line.get("section", None)
             option_name = line.get("option", None)
-            if not section_name or not option_name:
-                continue
-
             if section_name == section and option_name == option:
                 return ln, line
 
@@ -88,7 +84,7 @@ class IrregualrConfigParser(object):
                 continue
 
             section_name = line.get("section", None)
-            if section_name and section_name == section:
+            if section_name == section:
                 return ln, line
 
         return -1, None
