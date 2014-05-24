@@ -39,32 +39,41 @@ class IrregualrConfigParser(object):
                 fp.write(option + "\n")
 
     def parse_content(self, content):
+        def _is_blank(line):
+            return not line
+        
+        def _is_comment(line):
+            return line[0] in self.COMMENT_FLAGS
+
+        def _is_section(line):
+            return line[0] == '[' and line[-1] == ']'
+
+        def _is_option(line):
+            return "=" in line
+
         def _parse_content():
             section = None
             for line in content:
-                if not line:
+                if _is_blank(line):
                     yield None
                     continue
 
-                if line[0] in self.COMMENT_FLAGS:
+                if _is_comment(line):
                     yield {"comment": line}
                     continue
 
-                if line[0] == '[' and line[-1] == ']':
+                if _is_section(line):
                     section = line[1:-1]
                     yield {"section": section}
                     continue
 
-                if "=" in line:
+                if _is_option(line):
                     option, value = [i.strip() for i in line.split("=", 1)]
                     yield {"option": option, "value": value, "section": section}
                 else:
                     yield {"option": line, "section": section}
 
-        if not content:
-            return []
-        else:
-            return list(_parse_content())
+        return list(_parse_content()) if content else []
 
     def __get_option(self, section, option):
         for ln, line in enumerate(self.__content):
